@@ -179,9 +179,19 @@ abstract class BaseApiService<T> {
 
     // Case 2: multiple images (accident)
     if (multipleImagePath != null && fileFieldName != null) {
-      for (var path in multipleImagePath) {
-        request.files.add(await http.MultipartFile.fromPath(fileFieldName, path));
+      for (int i = 0; i < multipleImagePath.length; i++) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            '$fileFieldName[$i][image]',  // → images[0]image, images[1]image
+            multipleImagePath[i],
+          ),
+        );
       }
+    }
+    print('FIELDS: ${request.fields}');
+    print('FILES COUNT: ${request.files.length}');
+    for (var f in request.files) {
+      print('FILE: field=${f.field}, filename=${f.filename}');
     }
 
     // Send request

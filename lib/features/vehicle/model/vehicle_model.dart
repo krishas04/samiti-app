@@ -6,8 +6,8 @@ class VehicleModel {
   final String? fuelType;
   final String? modelNo;
   final VehiclePartnerEmbed? partner;
-  final int? vehicleBrand;
-  final int? vehicleType;
+  final VehicleBrandEmbed? vehicleBrand;
+  final VehicleTypeEmbed? vehicleType;
   final String? vehicleImage;
 
   VehicleModel({
@@ -34,8 +34,12 @@ class VehicleModel {
       partner: json['partner'] != null
           ? VehiclePartnerEmbed.fromJson(json['partner'])
           : null,
-      vehicleBrand: json['vehicle_brand'],
-      vehicleType: json['vehicle_type'],
+      vehicleBrand: json['vehicle_brand']!= null
+          ? VehicleBrandEmbed.fromJson(json['vehicle_brand'])
+          : null,
+      vehicleType: json['vehicle_type']!= null
+          ? VehicleTypeEmbed.fromJson(json['vehicle_type'])
+          : null,
       vehicleImage: json['vehicle_image'],
     );
   }
@@ -45,8 +49,8 @@ class VehicleModel {
       'display_name':displayName,
       'vehicle_no': vehicleNo,
       'partner': partner?.id, //Only send partner.id, not full object Or sends null
-      'vehicle_brand': vehicleBrand,
-      'vehicle_type': vehicleType,
+      'vehicle_brand': vehicleBrand?.id,
+      'vehicle_type': vehicleType?.id,
       'fuel_type': fuelType,
       'model_no': modelNo,
       'vehicle_image': vehicleImage,
@@ -72,6 +76,34 @@ class VehiclePartnerEmbed {
       isActive: json['is_active'] ?? true,
       name: json['display_name'] ,
       email: json['display_name'] ,
+    );
+  }
+}
+
+class VehicleBrandEmbed{
+  final int id;
+  final String displayName;
+
+  VehicleBrandEmbed({required this.id, required this.displayName});
+
+  factory VehicleBrandEmbed.fromJson(Map<String, dynamic> json) {
+    return VehicleBrandEmbed(
+      id: json['id'],
+      displayName: json['display_name'] ?? '',
+    );
+  }
+}
+
+class VehicleTypeEmbed {
+  final int id;
+  final String displayName;
+
+  VehicleTypeEmbed({required this.id, required this.displayName});
+
+  factory VehicleTypeEmbed.fromJson(Map<String, dynamic> json) {
+    return VehicleTypeEmbed(
+      id: json['id'],
+      displayName: json['display_name'] ?? '',
     );
   }
 }

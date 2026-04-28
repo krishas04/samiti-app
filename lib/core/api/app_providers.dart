@@ -27,6 +27,7 @@ class AppProviders extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AccidentViewModel(
             repository: AccidentRepository(client: sl()),
+            token: token
           ),
         ),
       ],

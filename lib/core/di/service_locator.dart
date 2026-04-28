@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:samiti_app/features/accident/repository/accident_repository.dart';
+import 'package:samiti_app/features/accident/view_model/accident_view_model.dart';
 import 'package:samiti_app/features/auth/repository/auth_repository.dart';
 import 'package:samiti_app/features/auth/view_model/auth_view_model.dart';
 import 'package:samiti_app/features/vehicle/repository/vehicle_repository.dart';
@@ -23,6 +25,16 @@ void registerVehicleFeature(String token) {
   );
   sl.registerFactory<VehicleViewModel>(
         () => VehicleViewModel(repository: sl<VehicleRepository>(), token: token),
+  );
+}
+
+void registerAccidentFeature(String token) {
+  // Use registerFactory so a fresh token is always used
+  sl.registerFactory<AccidentRepository>(
+        () => AccidentRepository(client: sl<http.Client>()),
+  );
+  sl.registerFactory<AccidentViewModel>(
+        () => AccidentViewModel(repository: sl<AccidentRepository>(), token: token),
   );
 }
 

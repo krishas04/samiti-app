@@ -7,6 +7,7 @@ import 'package:samiti_app/features/vehicle/view/vehicle_list_screen.dart';
 
 import '../../../core/api/app_providers.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../accident/view/accident_list_screen.dart';
 import '../view_model/auth_view_model.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(
             builder: (_) => AppProviders(
               token: token,
-              child: const VehicleListScreen(),
+              child: const AccidentListScreen(),
             ),
           ),
         );
