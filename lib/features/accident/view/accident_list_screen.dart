@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
 
 import '../../../core/api/app_providers.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/token_storage.dart';
 import '../view_model/accident_view_model.dart';
 import 'accident_detail_screen.dart';
@@ -60,7 +61,7 @@ class _AccidentListScreenState extends State<AccidentListScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(vm.error!, style: const TextStyle(color: Colors.red)),
+                Text(vm.error!, style: TextStyle(color: AppColors.error)),
                 const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: vm.fetchAccidents,

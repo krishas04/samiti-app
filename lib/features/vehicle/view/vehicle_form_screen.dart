@@ -7,6 +7,7 @@ import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_text_field.dart';
 import 'package:samiti_app/core/resusable_widgets/wide_elevated_button.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../view_model/vehicle_view_model.dart';
 
 class VehicleFormScreen extends StatefulWidget {
@@ -125,7 +126,7 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
                 width: double.infinity,
                 height: 160,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
+                  border: Border.all(color: AppColors.lightGrey),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: _vehicleImage != null
@@ -136,17 +137,17 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
                     : const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.camera_alt, size: 40, color: Colors.grey),
+                    Icon(Icons.camera_alt, size: 40, color: AppColors.lightGrey),
                     SizedBox(height: 8),
                     Text('Tap to add vehicle image',
-                        style: TextStyle(color: Colors.grey)),
+                        style: TextStyle(color: AppColors.lightGrey)),
                   ],
                 ),
               ),
             ),
             if (_error != null) ...[
               const SizedBox(height: 8),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
+              Text(_error!, style: TextStyle(color: AppColors.error)),
             ],
             const SizedBox(height: 20),
             isLoading

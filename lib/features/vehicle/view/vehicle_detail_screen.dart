@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../view_model/vehicle_view_model.dart';
 
 class VehicleDetailScreen extends StatefulWidget {
@@ -66,7 +67,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
+                      border: Border.all(color: AppColors.lightGrey),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: vehicle.vehicleImage != null
@@ -77,7 +78,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                         : const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.camera_alt, size: 40, color: Colors.grey),
+                        Icon(Icons.camera_alt, size: 40, color: AppColors.lightGrey),
 
                       ],
                     ),

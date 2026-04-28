@@ -7,6 +7,7 @@ import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_text_field.dart';
 import 'package:samiti_app/core/resusable_widgets/wide_elevated_button.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../view_model/accident_view_model.dart';
 
 class AccidentFormScreen extends StatefulWidget {
@@ -160,11 +161,11 @@ class _AccidentFormScreenState extends State<AccidentFormScreen> {
                       child: GestureDetector(
                         onTap: () =>
                             setState(() => _images.remove(file)),
-                        child: const CircleAvatar(
+                        child: CircleAvatar(
                           radius: 12,
-                          backgroundColor: Colors.red,
-                          child: Icon(Icons.close,
-                              size: 14, color: Colors.white),
+                          backgroundColor: AppColors.error,
+                          child: const Icon(Icons.close,
+                              size: 14, color: AppColors.white),
                         ),
                       ),
                     ),
@@ -176,17 +177,17 @@ class _AccidentFormScreenState extends State<AccidentFormScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
+                      border: Border.all(color: AppColors.lightGrey),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_a_photo, color: Colors.grey),
+                        Icon(Icons.add_a_photo, color: AppColors.lightGrey),
                         SizedBox(height: 4),
                         Text('Add Image',
                             style:
-                            TextStyle(fontSize: 11, color: Colors.grey)),
+                            TextStyle(fontSize: 11, color: AppColors.lightGrey)),
                       ],
                     ),
                   ),
@@ -196,7 +197,7 @@ class _AccidentFormScreenState extends State<AccidentFormScreen> {
 
             if (_error != null) ...[
               const SizedBox(height: 8),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
+              Text(_error!, style: const TextStyle(color: AppColors.error)),
             ],
             const SizedBox(height: 20),
             isLoading
