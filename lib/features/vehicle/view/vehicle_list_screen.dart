@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
 
-import '../../../core/api/app_providers.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/token_storage.dart';
 import '../view_model/vehicle_view_model.dart';
-import 'vehicle_form_screen.dart';
-import 'vehicle_detail_screen.dart';
 
 class VehicleListScreen extends StatefulWidget {
   const VehicleListScreen({super.key});
@@ -35,20 +32,11 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
       appBar: CustomAppBar(title: 'Vehicles'),
       floatingActionButton: FloatingActionButton(
         onPressed: () async{
-          final token = await TokenStorage.getAccessToken();
-
-          if (!mounted) return;
-
-          Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) =>
-                AppProviders(
-                  token: token!,
-                  child: const VehicleFormScreen(),
-                ),
-          ),
-        );},
+          // Navigate to add screen, wait until user returns
+          await context.pushNamed('vehicle-add');
+          // Only after returning, refresh the list
+          if(mounted) context.read<VehicleViewModel>().fetchVehicles();
+          },
         child: const Icon(Icons.add),
       ),
       body: Builder(builder: (_) {
@@ -94,20 +82,11 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async{
-                    final token = await TokenStorage.getAccessToken();
-
-                    if (!mounted) return;
-
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          AppProviders(
-                          token: token!,
-                          child: VehicleDetailScreen(vehicleId: vehicle.id),
-                        ),
-                    ),
-                  );}
+                    await context.pushNamed(
+                        "vehicle-detail",
+                      pathParameters: {'id':vehicle.id.toString()}
+                    );
+                    }
                 ),
               );
             },

@@ -58,7 +58,6 @@ class AccidentViewModel extends ChangeNotifier {
       accidents = [newAccident, ...accidents];
       return true;
     } catch (e) {
-      print(e);
       error = 'Failed to create accident. Please try again.';
       return false;
     } finally {

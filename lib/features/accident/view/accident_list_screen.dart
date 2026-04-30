@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
 
-import '../../../core/api/app_providers.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/token_storage.dart';
 import '../view_model/accident_view_model.dart';
-import 'accident_detail_screen.dart';
-import 'accident_form_screen.dart';
 
 class AccidentListScreen extends StatefulWidget {
   const AccidentListScreen({super.key});
@@ -33,22 +30,10 @@ class _AccidentListScreenState extends State<AccidentListScreen> {
       appBar: CustomAppBar(title: 'Accidents'),
       floatingActionButton: FloatingActionButton(
         onPressed: () async{
-          final token = await TokenStorage.getAccessToken();
-
-          if (!mounted) return;
-
-          Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => AppProviders(
-              token: token!,
-              child: const AccidentFormScreen()
-          )),
-        ).then((_) {
-            // Refresh list when returning from form
-            if (mounted) {
-              context.read<AccidentViewModel>().fetchAccidents();
-            }
-          });
+          // Navigate to add screen, wait until user returns
+          await context.pushNamed('vehicle-add');
+          // Only after returning, refresh the list
+          if(mounted) context.read<AccidentViewModel>().fetchAccidents();
         },
         child: const Icon(Icons.add),
       ),
@@ -95,21 +80,11 @@ class _AccidentListScreenState extends State<AccidentListScreen> {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async{
-                    final token = await TokenStorage.getAccessToken();
-
-                    if (!mounted) return;
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          AppProviders(
-                            token: token!,
-                            child: AccidentDetailScreen(
-                                accidentId: accident.id
-                            ),
-                          ),
-                    ),
-                  );}
+                    context.pushNamed(
+                        'accident-detail',
+                      pathParameters: {'id':accident.id.toString()}
+                    );
+                    }
                 ),
               );
             },

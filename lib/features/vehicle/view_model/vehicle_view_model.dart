@@ -21,7 +21,6 @@ class VehicleViewModel extends ChangeNotifier {
     try {
       vehicles = await repository.getVehicles();
     } catch (e) {
-      print('fetchVehicles REAL ERROR: $e');
       error = 'Failed to load vehicles. Please try again.';
     } finally {
       isLoading = false;
@@ -60,7 +59,6 @@ class VehicleViewModel extends ChangeNotifier {
       vehicles = [newVehicle, ...vehicles];
       return true;
     } catch (e) {
-      print(e);
       error = 'Failed to create vehicle. Please try again.';
       return false;
     } finally {

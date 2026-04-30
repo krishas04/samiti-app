@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
@@ -64,7 +65,7 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
     );
 
     if (success && mounted) {
-      Navigator.pop(context);
+      context.pop();
     } else if (mounted) {
       final vm = context.read<VehicleViewModel>();
       setState(() => _error = vm.error);

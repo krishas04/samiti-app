@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:samiti_app/core/utils/token_storage.dart';
 import 'package:samiti_app/features/auth/view/login_screen.dart';
 import 'package:samiti_app/features/vehicle/view/vehicle_detail_screen.dart';
 import 'package:samiti_app/features/vehicle/view/vehicle_form_screen.dart';
@@ -11,6 +12,12 @@ import '../../features/accident/view/accident_list_screen.dart';
 class AppRouter {
   static final router = GoRouter(
     initialLocation: '/login',
+      redirect: (context,state) async{
+      final hasToken= await TokenStorage.hasToken();  // returns bool
+      final isLoginPage= state.matchedLocation == "/login"; //returns bool
+      if(!hasToken && !isLoginPage) return "/login";
+      if(hasToken && isLoginPage) return "/vehicles";
+      },
       routes: [
         GoRoute(
             path: "/login",

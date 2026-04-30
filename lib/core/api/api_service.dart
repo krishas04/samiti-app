@@ -188,11 +188,6 @@ abstract class BaseApiService<T> {
         );
       }
     }
-    print('FIELDS: ${request.fields}');
-    print('FILES COUNT: ${request.files.length}');
-    for (var f in request.files) {
-      print('FILE: field=${f.field}, filename=${f.filename}');
-    }
 
     // Send request
     final streamed = await request.send();

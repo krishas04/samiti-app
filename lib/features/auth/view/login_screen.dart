@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_text_field.dart';
 import 'package:samiti_app/core/resusable_widgets/wide_elevated_button.dart';
-import 'package:samiti_app/features/vehicle/view/vehicle_list_screen.dart';
 
-import '../../../core/api/app_providers.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../accident/view/accident_list_screen.dart';
 import '../view_model/auth_view_model.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,16 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final token = viewModel.auth?.accessToken;
 
       if (token != null && token.isNotEmpty) {
-        // Navigate with token
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => AppProviders(
-              token: token,
-              child: const AccidentListScreen(),
-            ),
-          ),
-        );
+        context.goNamed('vehicles');
       } } else if(mounted){
       setState(() => _error = viewModel.error ?? 'Invalid credentials.');
     }
