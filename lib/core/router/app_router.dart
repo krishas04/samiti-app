@@ -45,7 +45,7 @@ class AppRouter {
                       builder: (context, state)=> const VehicleFormScreen(),
                     ),
                     GoRoute(
-                      path: "/detail",
+                      path: ":id",
                       name:"vehicle-detail",
                       builder: (context, state) {
                         final id = int.parse(state.pathParameters['id']!);
