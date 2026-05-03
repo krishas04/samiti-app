@@ -80,7 +80,7 @@ class _AccidentListScreenState extends State<AccidentListScreen> {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async{
-                    context.pushNamed(
+                    await context.pushNamed(
                         'accident-detail',
                       pathParameters: {'id':accident.id.toString()}
                     );
