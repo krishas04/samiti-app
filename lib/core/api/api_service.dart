@@ -18,8 +18,11 @@ abstract class BaseApiService<T> {
   Future<Map<String, String>> _authHeader() async {
     String? token = await TokenStorage.getAccessToken();
 
+
     if (token == null || token.isEmpty) {
-      throw ApiException(401, "Unauthorized");
+      return {
+        'Content-Type': 'application/json',
+      };
     }
 
     // refresh the token
@@ -41,7 +44,7 @@ abstract class BaseApiService<T> {
       }
 
       final data = jsonDecode(response.body);
-      token = data['access'];
+      token = data['access_token'];
 
       await TokenStorage.saveAccessToken(token!);
     }
@@ -107,15 +110,18 @@ abstract class BaseApiService<T> {
     }
   }
 
+
   Future<Map<String, dynamic>> put({
     required String endpoint,
     required Map<String, dynamic> body,
   }) async {
+    print('post of apiservice called');
     final response = await client.put(
       Uri.parse('$baseUrl$endpoint'),
       headers: await _authHeader(),
       body: jsonEncode(body),
     );
+    print('post of apiservice returned');
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/api/app_providers.dart';
 import 'package:samiti_app/core/router/app_router.dart';
@@ -26,10 +27,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _token = '';
+  late final AuthViewModel _authViewModel;
+  late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
+    _authViewModel = AuthViewModel(repository: sl<AuthRepository>());
+    _router = AppRouter.createRouter(_authViewModel);
     _loadToken();
   }
 
@@ -42,12 +47,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final authRepository=sl<AuthRepository>();
+
     return MultiProvider(
       providers:[
-        ChangeNotifierProvider(
-            create: (_)=>AuthViewModel(repository: authRepository)
-        )
+        ChangeNotifierProvider.value(value: _authViewModel),
       ],
       child: AppProviders(
         token: _token,
@@ -55,7 +58,7 @@ class _MyAppState extends State<MyApp> {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),
           ),
-          routerConfig: AppRouter.router,
+          routerConfig: _router,
           debugShowCheckedModeBanner: false,
         ),
       ),

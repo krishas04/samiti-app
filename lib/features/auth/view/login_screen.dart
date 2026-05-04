@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final token = viewModel.auth?.accessToken;
 
       if (token != null && token.isNotEmpty) {
-        context.goNamed('vehicles');
+        context.goNamed('dashboard');
       } } else if(mounted){
       setState(() => _error = viewModel.error ?? 'Invalid credentials.');
     }

@@ -14,18 +14,26 @@ class AuthViewModel extends ChangeNotifier{
   AuthViewModel({required this.repository});
 
   Future<bool> login({required String login, required String password}) async{
+    print("LOGIN FUNCTION CALLED");
     isLoading=true;
+    error=null;
     notifyListeners();
 
     try{
+      print('auth called');
       auth=await repository.login(login: login, password: password);
+      print('auth returned');
       await TokenStorage.saveTokens(
         accessToken:  auth!.accessToken,
         refreshToken: auth!.refreshToken,
       );
+      print("TOKEN SAVED: ${auth!.accessToken}");
+      print("TOKEN FROM STORAGE AFTER SAVE: ${await TokenStorage.getAccessToken()}");
       return true;
     }catch(e){
-      error="Invalid username or password";
+      error = e.toString();
+      print(error);
+      error="Invalid username or password vm";
       return false;
     }
     finally{
@@ -71,6 +79,8 @@ class AuthViewModel extends ChangeNotifier{
   Future<void> logout() async {
     await TokenStorage.clearTokens();
     auth = null;
+    error = null;
+    isLoading = false;
     notifyListeners();
   }
 }

@@ -11,6 +11,7 @@ class MainShell extends StatelessWidget {
     final location = GoRouterState.of(context).matchedLocation; //current route
     if (location.startsWith('/vehicles')) return 1;
     if (location.startsWith('/accidents')) return 2;
+    if (location.startsWith('/profile')) return 3;
     return 0; // dashboard
   }
 
@@ -31,6 +32,9 @@ class MainShell extends StatelessWidget {
             case 2:
               context.goNamed('accidents');
               break;
+            case 3:
+              context.goNamed('profile');
+              break;
           }
         },
         destinations: const [
@@ -48,6 +52,11 @@ class MainShell extends StatelessWidget {
             icon: Icon(Icons.car_crash_outlined),
             selectedIcon: Icon(Icons.car_crash),
             label: 'Accidents',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),
