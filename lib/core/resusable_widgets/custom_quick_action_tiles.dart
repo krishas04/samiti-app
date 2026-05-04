@@ -6,7 +6,7 @@ class CustomQuickActionTile extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
 
-  const CustomQuickActionTile({required this.label, required this.icon, required this.color, required this.onTap});
+  const CustomQuickActionTile({super.key, required this.label, required this.icon, required this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

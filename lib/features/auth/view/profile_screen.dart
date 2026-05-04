@@ -13,7 +13,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authviewmodel = context.watch<AuthViewModel>();
 
     return Scaffold(
       appBar: CustomAppBar(title: 'My Profile'),

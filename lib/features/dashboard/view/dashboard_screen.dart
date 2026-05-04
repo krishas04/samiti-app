@@ -33,7 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final vm=context.watch<VehicleViewModel>();
     final am=context.watch<AccidentViewModel>();
 
-    final List<CustomItem> _items =  [
+    final List<CustomItem> items =  [
       CustomItem(
         title: 'Vehicles',
         value: vm.vehicles.length.toString(),
@@ -50,7 +50,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     ];
 
-    final List<CustomQuickActionTile> _actions=[
+    final List<CustomQuickActionTile> actions=[
       CustomQuickActionTile(
         label: 'Add vehicle',
         icon: Icons.add_circle_outline,
@@ -90,11 +90,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   mainAxisSpacing: 10,
                   childAspectRatio: 1.5,
                 ),
-                itemCount: _items.length,
+                itemCount: items.length,
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
-                  final item = _items[index];
+                  final item = items[index];
                   return CustomCard(item: item);
                 },
               ),
@@ -112,11 +112,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     mainAxisSpacing: 10,
                     childAspectRatio: 2.5,
                   ),
-                  itemCount: _actions.length,
+                  itemCount: actions.length,
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
-                    final action= _actions[index];
+                    final action= actions[index];
                     return action;
                   }
               ),

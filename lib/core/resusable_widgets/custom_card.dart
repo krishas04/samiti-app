@@ -5,7 +5,7 @@ import '../constants/app_colors.dart';
 
 class CustomCard extends StatelessWidget {
   final CustomItem item;
-  const CustomCard({required this.item});
+  const CustomCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {

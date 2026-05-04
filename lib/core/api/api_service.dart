@@ -115,13 +115,11 @@ abstract class BaseApiService<T> {
     required String endpoint,
     required Map<String, dynamic> body,
   }) async {
-    print('post of apiservice called');
     final response = await client.put(
       Uri.parse('$baseUrl$endpoint'),
       headers: await _authHeader(),
       body: jsonEncode(body),
     );
-    print('post of apiservice returned');
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {

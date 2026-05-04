@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/api/app_providers.dart';
 import 'package:samiti_app/core/router/app_router.dart';
-import 'package:samiti_app/core/utils/token_storage.dart';
 import 'package:samiti_app/features/auth/repository/auth_repository.dart';
 import 'package:samiti_app/features/auth/view_model/auth_view_model.dart';
 
@@ -26,7 +25,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _token = '';
   late final AuthViewModel _authViewModel;
   late final GoRouter _router;
 
@@ -35,15 +33,8 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     _authViewModel = AuthViewModel(repository: sl<AuthRepository>());
     _router = AppRouter.createRouter(_authViewModel);
-    _loadToken();
   }
 
-  Future<void> _loadToken() async{
-    final token= await TokenStorage.getAccessToken();
-    setState(() {
-      _token=token ?? '';
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +44,6 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(value: _authViewModel),
       ],
       child: AppProviders(
-        token: _token,
         child: MaterialApp.router(
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),

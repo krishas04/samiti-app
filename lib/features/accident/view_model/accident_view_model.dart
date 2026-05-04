@@ -10,7 +10,7 @@ class AccidentViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  AccidentViewModel({required this.repository, required String token});
+  AccidentViewModel({required this.repository,});
 
   Future<void> fetchAccidents() async {
     isLoading = true;

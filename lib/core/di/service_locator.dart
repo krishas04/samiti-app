@@ -24,7 +24,7 @@ void registerVehicleFeature(String token) {
         () => VehicleRepository(client: sl<http.Client>()),
   );
   sl.registerFactory<VehicleViewModel>(
-        () => VehicleViewModel(repository: sl<VehicleRepository>(), token: token),
+        () => VehicleViewModel(repository: sl<VehicleRepository>(), ),
   );
 }
 
@@ -34,7 +34,7 @@ void registerAccidentFeature(String token) {
         () => AccidentRepository(client: sl<http.Client>()),
   );
   sl.registerFactory<AccidentViewModel>(
-        () => AccidentViewModel(repository: sl<AccidentRepository>(), token: token),
+        () => AccidentViewModel(repository: sl<AccidentRepository>(), ),
   );
 }
 

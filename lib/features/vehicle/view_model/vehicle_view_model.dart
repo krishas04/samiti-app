@@ -11,7 +11,7 @@ class VehicleViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  VehicleViewModel({required this.repository, required String token});
+  VehicleViewModel({required this.repository,});
 
   Future<void> fetchVehicles() async {
     isLoading = true;
