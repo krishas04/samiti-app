@@ -31,7 +31,7 @@ class _AccidentListScreenState extends State<AccidentListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async{
           // Navigate to add screen, wait until user returns
-          await context.pushNamed('vehicle-add');
+          await context.pushNamed('accident-add');
           // Only after returning, refresh the list
           if(mounted) context.read<AccidentViewModel>().fetchAccidents();
         },
