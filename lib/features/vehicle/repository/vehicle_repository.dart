@@ -51,4 +51,25 @@ class VehicleRepository extends BaseApiService {
       endpoint: '${ApiConstants.vehicles}$id/',
     );
   }
+
+  Future<List<VehiclePartnerEmbed>> getPartners() async {
+    return getList<VehiclePartnerEmbed>(
+      endpoint: ApiConstants.partners,
+      fromJson: VehiclePartnerEmbed.fromJson,
+    );
+  }
+
+  Future<List<VehicleBrandEmbed>> getVehicleBrands() async {
+    return getList<VehicleBrandEmbed>(
+      endpoint: ApiConstants.vehicleBrands,
+      fromJson: VehicleBrandEmbed.fromJson,
+    );
+  }
+
+  Future<List<VehicleTypeEmbed>> getVehicleTypes() async {
+    return getList<VehicleTypeEmbed>(
+      endpoint: ApiConstants.vehicleTypes,
+      fromJson: VehicleTypeEmbed.fromJson,
+    );
+  }
 }

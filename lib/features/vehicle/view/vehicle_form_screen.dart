@@ -7,8 +7,12 @@ import 'package:provider/provider.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
 import 'package:samiti_app/core/resusable_widgets/custom_text_field.dart';
 import 'package:samiti_app/core/resusable_widgets/wide_elevated_button.dart';
+import 'package:samiti_app/features/vehicle/model/vehicle_model.dart';
+import 'package:samiti_app/features/vehicle/repository/vehicle_repository.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/di/service_locator.dart';
+import '../../../core/resusable_widgets/custom_dropdown.dart';
 import '../view_model/vehicle_view_model.dart';
 
 class VehicleFormScreen extends StatefulWidget {
@@ -20,10 +24,12 @@ class VehicleFormScreen extends StatefulWidget {
 
 class _VehicleFormScreenState extends State<VehicleFormScreen> {
   final _vehicleNoController = TextEditingController();
-  final _partnerController = TextEditingController();
-  final _vehicleBrandController = TextEditingController();
-  final _vehicleTypeController = TextEditingController();
   final _modelNoController = TextEditingController();
+
+
+  VehiclePartnerEmbed? _selectedPartner;
+  VehicleBrandEmbed? _selectedBrand;
+  VehicleTypeEmbed? _selectedType;
 
   String? _selectedFuelType;
   File? _vehicleImage;
@@ -31,6 +37,42 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
 
   final _fuelTypes = ['diesel', 'petrol', 'electric'];
   final _picker = ImagePicker();
+
+  // Dropdown option lists
+  List<VehiclePartnerEmbed> _partners = [];
+  List<VehicleBrandEmbed> _brands = [];
+  List<VehicleTypeEmbed> _types = [];
+  bool _loadingOptions = false;
+
+  // Repository just for form dropdowns
+  late final VehicleRepository _vehicleRepo;
+
+  @override
+  void initState() {
+    super.initState();
+    _vehicleRepo = VehicleRepository(client: sl());
+    _loadDropdownOptions();
+  }
+
+  Future<void> _loadDropdownOptions() async {
+    setState(() => _loadingOptions = true);
+    try {
+      final results = await Future.wait([
+        _vehicleRepo.getPartners(),
+        _vehicleRepo.getVehicleBrands(),
+        _vehicleRepo.getVehicleTypes(),
+      ]);
+      setState(() {
+        _partners = results[0] as List<VehiclePartnerEmbed>;
+        _brands = results[1] as List<VehicleBrandEmbed>;
+        _types = results[2] as List<VehicleTypeEmbed>;
+      });
+    } catch (e) {
+      setState(() => _error = 'Failed to load form options.');
+    } finally {
+      setState(() => _loadingOptions = false);
+    }
+  }
 
   Future<void> _pickImage() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
@@ -48,12 +90,13 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
 
     final fields = <String, String>{
       'vehicle_no': _vehicleNoController.text.trim(),
-      if (_partnerController.text.trim().isNotEmpty)
-        'partner': _partnerController.text.trim(),
-      if (_vehicleBrandController.text.trim().isNotEmpty)
-        'vehicle_brand': _vehicleBrandController.text.trim(),
-      if (_vehicleTypeController.text.trim().isNotEmpty)
-        'vehicle_type': _vehicleTypeController.text.trim(),
+      // Send id, not display name
+      if (_selectedPartner != null)
+        'partner': _selectedPartner!.id.toString(),
+      if (_selectedBrand != null)
+        'vehicle_brand': _selectedBrand!.id.toString(),
+      if (_selectedType != null)
+        'vehicle_type': _selectedType!.id.toString(),
       if (_modelNoController.text.trim().isNotEmpty)
         'model_no': _modelNoController.text.trim(),
       if (_selectedFuelType != null) 'fuel_type': _selectedFuelType!,
@@ -73,6 +116,13 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
   }
 
   @override
+  void dispose() {
+    _vehicleNoController.dispose();
+    _modelNoController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isLoading = context.watch<VehicleViewModel>().isLoading;
 
@@ -88,19 +138,40 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
               label: 'Vehicle Number *',
             ),
             const SizedBox(height: 12),
-            CustomTextField(
-              controller: _partnerController,
-              label: 'Partner ID',
+            // Partner dropdown — shows display_name, sends id
+            CustomDropdownFormField<VehiclePartnerEmbed>(
+              label: 'Partner',
+              value: _selectedPartner,
+              items: _partners.map((p) => DropdownMenuItem(
+                value: p,
+                child: Text(p.displayName),
+              )).toList(),
+              onChanged: (val) => setState(() => _selectedPartner = val),
+              errorText: _error?.contains('Partner') == true ? _error : null,
             ),
             const SizedBox(height: 12),
-            CustomTextField(
-              controller: _vehicleBrandController,
-              label: 'Vehicle Brand ID',
+
+            // For Vehicle Brand
+            CustomDropdownFormField<VehicleBrandEmbed>(
+              label: 'Vehicle Brand',
+              value: _selectedBrand,
+              items: _brands.map((b) => DropdownMenuItem(
+                value: b,
+                child: Text(b.displayName),
+              )).toList(),
+              onChanged: (val) => setState(() => _selectedBrand = val),
             ),
             const SizedBox(height: 12),
-            CustomTextField(
-              controller: _vehicleTypeController,
-              label: 'Vehicle Type ID',
+
+            // For Vehicle Type
+            CustomDropdownFormField<VehicleTypeEmbed>(
+              label: 'Vehicle Type',
+              value: _selectedType,
+              items: _types.map((t) => DropdownMenuItem(
+                value: t,
+                child: Text(t.displayName),
+              )).toList(),
+              onChanged: (val) => setState(() => _selectedType = val),
             ),
             const SizedBox(height: 12),
             CustomTextField(
@@ -108,15 +179,14 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
               label: 'Model No',
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _selectedFuelType,
-              decoration: const InputDecoration(
-                labelText: 'Fuel Type',
-                border: OutlineInputBorder(),
-              ),
-              items: _fuelTypes
-                  .map((f) => DropdownMenuItem(value: f, child: Text(f)))
-                  .toList(),
+
+            CustomDropdownFormField<String>(
+              label: 'Fuel Type',
+              value: _selectedFuelType,
+              items: _fuelTypes.map((t) => DropdownMenuItem(
+                value: t,
+                child: Text(t),
+              )).toList(),
               onChanged: (val) => setState(() => _selectedFuelType = val),
             ),
             const SizedBox(height: 16),
