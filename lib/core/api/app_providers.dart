@@ -8,6 +8,8 @@ import 'package:samiti_app/features/vehicle/view_model/vehicle_view_model.dart';
 import '../../features/accident/repository/accident_repository.dart';
 import '../../features/accident/view_model/accident_view_model.dart';
 import '../di/service_locator.dart';
+import '../network/connectivity_service.dart';
+import '../sync/sync_engine.dart';
 
 class AppProviders extends StatelessWidget {
   final Widget child;
@@ -18,9 +20,13 @@ class AppProviders extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        // it shares existing singleton instance of ConnectivityService from GetIt across the entire app
+        ChangeNotifierProvider.value(value: sl<ConnectivityService>()),
         ChangeNotifierProvider(
           create: (_) => VehicleViewModel(
-            repository: VehicleRepository(client: sl<http.Client>()),
+          repository: sl<VehicleRepository>(),
+          syncEngine: sl<SyncEngine>(),
+          connectivity: sl<ConnectivityService>(),
           ),
         ),
         ChangeNotifierProvider(

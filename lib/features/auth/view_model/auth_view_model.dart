@@ -26,7 +26,6 @@ class AuthViewModel extends ChangeNotifier{
       );
       return true;
     }catch(e){
-      error = e.toString();
       error="Invalid username or password vm";
       return false;
     }

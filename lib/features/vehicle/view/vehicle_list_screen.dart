@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
+import 'package:samiti_app/core/reusable_widgets/custom_appbar.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/network/connectivity_service.dart';
 import '../view_model/vehicle_view_model.dart';
 
 class VehicleListScreen extends StatefulWidget {
@@ -27,6 +28,8 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<VehicleViewModel>();
+    final connectivity = context.watch<ConnectivityService>();
+
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Vehicles'),
@@ -39,60 +42,85 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
           },
         child: const Icon(Icons.add),
       ),
-      body: Builder(builder: (_) {
-        if (vm.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (vm.error != null) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(vm.error!, style: TextStyle(color: AppColors.error)),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: vm.fetchVehicles,
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-        if (vm.vehicles.isEmpty) {
-          return const Center(child: Text('No vehicles found.'));
-        }
-        return RefreshIndicator(
-          onRefresh: vm.fetchVehicles,
-          child: ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: vm.vehicles.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final vehicle = vm.vehicles[index];
-              return Card(
-                child: ListTile(
-                  leading: const Icon(Icons.directions_car),
-                  title: Text(vehicle.vehicleNo),
-                  subtitle: Text(
-                    [
-                      if (vehicle.partner?.displayName != null)
-                        vehicle.partner!.displayName,
-                      if (vehicle.fuelType != null) vehicle.fuelType!,
-                    ].join(' · '),
+      body: Column(
+        children: [
+          if (!connectivity.isOnline)
+            Container(
+              width: double.infinity,
+              color: Colors.orange.shade800,
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+              child: const Row(
+                children: [
+                  Icon(Icons.wifi_off, color: Colors.white, size: 14),
+                  SizedBox(width: 6),
+                  Text(
+                    'Offline — showing cached data',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () async{
-                    await context.pushNamed(
-                        "vehicle-detail",
-                      pathParameters: {'id':vehicle.id.toString()}
+                ],
+              ),
+            ),
+
+          Expanded(
+            child: Builder(builder: (_) {
+              if (vm.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (vm.error != null) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(vm.error!, style: TextStyle(color: AppColors.error)),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: vm.fetchVehicles,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              if (vm.vehicles.isEmpty) {
+                return const Center(child: Text('No vehicles found.'));
+              }
+              return RefreshIndicator(
+                onRefresh: vm.fetchVehicles,
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: vm.vehicles.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final vehicle = vm.vehicles[index];
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.directions_car),
+                        title: Text(vehicle.vehicleNo),
+                        subtitle: Text(
+                          [
+                            if (vehicle.partner?.displayName != null)
+                              vehicle.partner!.displayName,
+                            if (vehicle.fuelType != null) vehicle.fuelType!,
+                          ].join(' · '),
+                        ),
+                          trailing: vehicle.id < 0
+                              ? const Icon(Icons.sync, color: Colors.orange, size: 18)
+                              : const Icon(Icons.chevron_right),
+                          onTap: () async{
+                          await context.pushNamed(
+                              "vehicle-detail",
+                            pathParameters: {'id':vehicle.id.toString()}
+                          );
+                          }
+                      ),
                     );
-                    }
+                  },
                 ),
               );
-            },
+            }),
           ),
-        );
-      }),
+        ],
+      ),
     );
   }
 }

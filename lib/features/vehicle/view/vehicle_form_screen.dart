@@ -4,15 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
-import 'package:samiti_app/core/resusable_widgets/custom_text_field.dart';
-import 'package:samiti_app/core/resusable_widgets/wide_elevated_button.dart';
+import 'package:samiti_app/core/reusable_widgets/custom_appbar.dart';
+import 'package:samiti_app/core/reusable_widgets/custom_text_field.dart';
+import 'package:samiti_app/core/reusable_widgets/wide_elevated_button.dart';
 import 'package:samiti_app/features/vehicle/model/vehicle_model.dart';
-import 'package:samiti_app/features/vehicle/repository/vehicle_repository.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/di/service_locator.dart';
-import '../../../core/resusable_widgets/custom_dropdown.dart';
+import '../../../core/reusable_widgets/custom_dropdown.dart';
 import '../view_model/vehicle_view_model.dart';
 
 class VehicleFormScreen extends StatefulWidget {
@@ -44,23 +42,23 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
   List<VehicleTypeEmbed> _types = [];
   bool _loadingOptions = false;
 
-  // Repository just for form dropdowns
-  late final VehicleRepository _vehicleRepo;
 
   @override
   void initState() {
     super.initState();
-    _vehicleRepo = VehicleRepository(client: sl());
-    _loadDropdownOptions();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      _loadDropdownOptions();
+    });
   }
 
   Future<void> _loadDropdownOptions() async {
     setState(() => _loadingOptions = true);
     try {
+      final viewModel = context.read<VehicleViewModel>();
       final results = await Future.wait([
-        _vehicleRepo.getPartners(),
-        _vehicleRepo.getVehicleBrands(),
-        _vehicleRepo.getVehicleTypes(),
+        viewModel.getPartners(),
+        viewModel.getVehicleBrands(),
+        viewModel.getVehicleTypes(),
       ]);
       setState(() {
         _partners = results[0] as List<VehiclePartnerEmbed>;
@@ -139,7 +137,10 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
             ),
             const SizedBox(height: 12),
             // Partner dropdown — shows display_name, sends id
-            CustomDropdownFormField<VehiclePartnerEmbed>(
+            if (_loadingOptions)
+              const Center(child: CircularProgressIndicator())
+            else ...[
+              CustomDropdownFormField<VehiclePartnerEmbed>(
               label: 'Partner',
               value: _selectedPartner,
               items: _partners.map((p) => DropdownMenuItem(
@@ -173,6 +174,7 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
               )).toList(),
               onChanged: (val) => setState(() => _selectedType = val),
             ),
+            ],
             const SizedBox(height: 12),
             CustomTextField(
               controller: _modelNoController,

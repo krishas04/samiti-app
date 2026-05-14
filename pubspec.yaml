@@ -36,6 +36,10 @@ dependencies:
   get_it: ^7.7.0
   image_picker: ^1.2.1
   go_router: ^17.0.0
+  sqflite: ^2.3.0 # Provides classes and functions to interact with a SQLite database.
+  path: ^1.8.3  # Helps you locate the database file on the device.
+  connectivity_plus: ^6.0.0 # Detects whether the device is online or offline.
+  uuid: ^4.0.0  # Generates unique IDs for records
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

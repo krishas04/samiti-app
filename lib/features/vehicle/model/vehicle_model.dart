@@ -10,6 +10,11 @@ class VehicleModel {
   final VehicleTypeEmbed? vehicleType;
   final String? vehicleImage;
 
+  // For database queries (foreign key)
+  final int? partnerId;
+  final int? vehicleBrandId;
+  final int? vehicleTypeId;
+
   VehicleModel({
     required this.id,
     required this.displayName,
@@ -20,7 +25,10 @@ class VehicleModel {
     this.partner,
     this.vehicleBrand,
     this.vehicleType,
-    this.vehicleImage
+    this.vehicleImage,
+    this.partnerId,
+    this.vehicleBrandId,
+    this.vehicleTypeId
   });
 
   factory VehicleModel.fromJson(Map<String, dynamic> json) {
@@ -78,6 +86,16 @@ class VehiclePartnerEmbed {
       email: json['display_name'] ,
     );
   }
+
+  Map<String, dynamic> toJson(){
+    return {
+      'id':id,
+      'display_name': displayName,
+      'is_active': isActive,
+      'name': name,
+      'email': email,
+    };
+  }
 }
 
 class VehicleBrandEmbed{
@@ -92,6 +110,11 @@ class VehicleBrandEmbed{
       displayName: json['display_name'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'display_name': displayName,
+  };
 }
 
 class VehicleTypeEmbed {
@@ -106,4 +129,9 @@ class VehicleTypeEmbed {
       displayName: json['display_name'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'display_name': displayName,
+  };
 }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
-import 'package:samiti_app/core/resusable_widgets/custom_quick_action_tiles.dart';
+import 'package:samiti_app/core/reusable_widgets/custom_appbar.dart';
+import 'package:samiti_app/core/reusable_widgets/custom_quick_action_tiles.dart';
 import 'package:samiti_app/features/accident/view_model/accident_view_model.dart';
 import 'package:samiti_app/features/vehicle/view_model/vehicle_view_model.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/resusable_widgets/custom_card.dart';
-import '../../../core/resusable_widgets/section_header.dart';
+import '../../../core/reusable_widgets/custom_card.dart';
+import '../../../core/reusable_widgets/section_header.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

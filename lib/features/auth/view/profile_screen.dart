@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:samiti_app/core/resusable_widgets/custom_action_card.dart';
-import 'package:samiti_app/core/resusable_widgets/custom_appbar.dart';
-import 'package:samiti_app/core/resusable_widgets/section_header.dart';
+import 'package:samiti_app/core/reusable_widgets/custom_action_card.dart';
+import 'package:samiti_app/core/reusable_widgets/custom_appbar.dart';
+import 'package:samiti_app/core/reusable_widgets/section_header.dart';
 import 'package:samiti_app/features/auth/view_model/auth_view_model.dart';
 
 import '../../../core/constants/app_colors.dart';
