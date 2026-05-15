@@ -81,6 +81,7 @@ class VehicleRepository {
         vehicleNo: fields['vehicle_no'] ?? '',
         isActive: true,
         fuelType: fields['fuel_type'],
+        createdAt: DateTime.now().millisecondsSinceEpoch,
         modelNo: fields['model_no'],
         partnerId: fields['partner'] != null
             ? int.parse(fields['partner']!)

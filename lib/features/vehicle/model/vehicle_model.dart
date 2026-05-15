@@ -4,6 +4,7 @@ class VehicleModel {
   final String vehicleNo;
   final bool isActive;
   final String? fuelType;
+  final int? createdAt;
   final String? modelNo;
   final VehiclePartnerEmbed? partner;
   final VehicleBrandEmbed? vehicleBrand;
@@ -21,6 +22,7 @@ class VehicleModel {
     required this.vehicleNo,
     required this.isActive,
     this.fuelType,
+    this.createdAt,
     this.modelNo,
     this.partner,
     this.vehicleBrand,
@@ -38,6 +40,7 @@ class VehicleModel {
       vehicleNo: json['vehicle_no'] ?? '',
       isActive: json['is_active'] ?? true,
       fuelType: json['fuel_type'],
+      createdAt: json['created_at'],
       modelNo: json['model_no'],
       partner: json['partner'] != null
           ? VehiclePartnerEmbed.fromJson(json['partner'])
@@ -60,6 +63,7 @@ class VehicleModel {
       'vehicle_brand': vehicleBrand?.id,
       'vehicle_type': vehicleType?.id,
       'fuel_type': fuelType,
+      'created_at':createdAt,
       'model_no': modelNo,
       'vehicle_image': vehicleImage,
     };

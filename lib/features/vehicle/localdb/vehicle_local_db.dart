@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:sqflite/sqflite.dart';
 
 import '../../../core/database/db_helper.dart';
@@ -15,7 +14,7 @@ class VehicleLocalDb{
       'vehicles',
       where: 'sync_status != ?',
       whereArgs: ['pending_delete'],
-      orderBy: 'id DESC'  //higher id= newer record
+      orderBy: 'created_at DESC'  //higher value in created_at= newer record
     );
     return rows.map(_rowToModel).toList();
   }
@@ -76,6 +75,7 @@ class VehicleLocalDb{
           'display_name': fields['vehicle_no'] ?? '',
           'is_active': 1,
           'fuel_type': fields['fuel_type'],
+          'created_at': DateTime.now().millisecondsSinceEpoch,
           'model_no': fields['model_no'],
           'partner_id': int.tryParse(fields['partner'] ?? ''),
           'vehicle_brand_id': int.tryParse(fields['vehicle_brand'] ?? ''),
@@ -114,40 +114,48 @@ class VehicleLocalDb{
 
   // convert db row ie. json to VehicleModel object
   VehicleModel _rowToModel(Map<String, Object?> row) {
-    return VehicleModel(
-        id: row['id'] as int,
-        vehicleNo: row['vehicle_no'] as String,
-        displayName: row['display_name'] as String,
-        isActive: (row['is_active'] as int) == 1, //returns bool
-        fuelType: row['fuel_type'] as String?,
-        modelNo: row['model_no'] as String?,
-        vehicleImage: row['vehicle_image'] as String?,
-        partnerId: row['partner_id'] as int?,
-        vehicleBrandId: row['vehicle_brand_id'] as int?,
-        vehicleTypeId: row['vehicle_type_id'] as int?,
-        partner: row['partner_json'] != null
-            ? VehiclePartnerEmbed.fromJson(
-            jsonDecode(row['partner_json'] as String))
-            : null,
-        vehicleBrand: row['vehicle_brand_json'] != null
-            ? VehicleBrandEmbed.fromJson(
-            jsonDecode(row['vehicle_brand_json'] as String))
-            : null,
-        vehicleType: row['vehicle_type_json'] != null
-            ? VehicleTypeEmbed.fromJson(
-            jsonDecode(row['vehicle_type_json'] as String))
-            : null,
-      );
+    final createdAt = _calculateCreatedAt(row);
+    final vehicle = VehicleModel(
+      id: row['id'] as int,
+      vehicleNo: row['vehicle_no'] as String,
+      displayName: row['display_name'] as String,
+      isActive: (row['is_active'] as int) == 1, //returns bool
+      fuelType: row['fuel_type'] as String?,
+      createdAt: createdAt,
+      modelNo: row['model_no'] as String?,
+      vehicleImage: row['vehicle_image'] as String?,
+      partnerId: row['partner_id'] as int?,
+      vehicleBrandId: row['vehicle_brand_id'] as int?,
+      vehicleTypeId: row['vehicle_type_id'] as int?,
+      partner: row['partner_json'] != null
+          ? VehiclePartnerEmbed.fromJson(
+          jsonDecode(row['partner_json'] as String))
+          : null,
+      vehicleBrand: row['vehicle_brand_json'] != null
+          ? VehicleBrandEmbed.fromJson(
+          jsonDecode(row['vehicle_brand_json'] as String))
+          : null,
+      vehicleType: row['vehicle_type_json'] != null
+          ? VehicleTypeEmbed.fromJson(
+          jsonDecode(row['vehicle_type_json'] as String))
+          : null,
+    );
+    return vehicle;
   }
 
   // convert VehicleModel to db row ie.json
   Map<String, Object?> _modelToRow(VehicleModel v, {String syncStatus= 'synced'}) {
+    final createdAt = v.createdAt != null
+        ? v.createdAt!
+        :(DateTime(2026, 1, 1).millisecondsSinceEpoch + ((v.id - 1) * 86400000));
+
     return {
       'id':v.id,
       'vehicle_no': v.vehicleNo,
       'display_name': v.displayName,
       'is_active': v.isActive ? 1 : 0,  //as db stores it as integer
       'fuel_type': v.fuelType,
+      'created_at': createdAt ,
       'model_no': v.modelNo,
       'vehicle_image': v.vehicleImage,
 
@@ -271,5 +279,27 @@ class VehicleLocalDb{
       print('Type not found with id: $id');
       return null;
     }
+  }
+
+  // function to calculate value for createAt field
+  int _calculateCreatedAt(Map<String, Object?> row) {
+    final rawCreatedAt = row['created_at'];
+    final id = row['id'] as int;
+
+    // Check if created_at exists and is an integer
+    if (rawCreatedAt != null && rawCreatedAt is int) {
+      return rawCreatedAt;
+    }
+
+    // For negative IDs (pending offline records)
+    if (id < 0) {
+      return DateTime.now().millisecondsSinceEpoch;
+    }
+
+    // For all other cases (null, zero, invalid)
+    // Calculate based on ID
+    final baseTimestamp = DateTime(2026, 1, 1).millisecondsSinceEpoch;
+    final multiplier = 86400000; // 1 day in milliseconds
+    return baseTimestamp + ((id - 1) * multiplier);
   }
 }

@@ -37,6 +37,7 @@ class DbHelper{
         vehicle_no TEXT NOT NULL,
         display_name TEXT NOT NULL,
         is_active INTEGER NOT NULL,
+        created_at INTEGER,
         fuel_type TEXT,
         partner_id INTEGER,
         vehicle_brand_id INTEGER,
