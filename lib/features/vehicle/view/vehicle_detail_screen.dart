@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/reusable_widgets/custom_appbar.dart';
+import 'package:samiti_app/core/reusable_widgets/vehicle_image.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../view_model/vehicle_view_model.dart';
@@ -70,18 +71,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                       border: Border.all(color: AppColors.lightGrey),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: vehicle.vehicleImage != null
-                        ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(vehicle.vehicleImage!, fit: BoxFit.cover),
-                    )
-                        : const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.camera_alt, size: 40, color: AppColors.lightGrey),
-
-                      ],
-                    ),
+                    child:VehicleImage(vehicle: vehicle),
                   ),
                   _infoRow('Vehicle No', vehicle.vehicleNo),
                   const Divider(),

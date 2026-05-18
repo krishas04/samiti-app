@@ -53,8 +53,8 @@ class VehicleLocalDb{
           _modelToRow(v,syncStatus: 'synced'),
         conflictAlgorithm: ConflictAlgorithm.replace
       );
-      await batch.commit(noResult: true);
     }
+    await batch.commit(noResult: true);
   }
 
   // insert temporary optimistic record with negative id
@@ -124,6 +124,7 @@ class VehicleLocalDb{
       createdAt: createdAt,
       modelNo: row['model_no'] as String?,
       vehicleImage: row['vehicle_image'] as String?,
+      localImagePath: row['local_image_path'] as String?,
       partnerId: row['partner_id'] as int?,
       vehicleBrandId: row['vehicle_brand_id'] as int?,
       vehicleTypeId: row['vehicle_type_id'] as int?,
@@ -158,6 +159,7 @@ class VehicleLocalDb{
       'created_at': createdAt ,
       'model_no': v.modelNo,
       'vehicle_image': v.vehicleImage,
+      'local_image_path': v.localImagePath,
 
       'partner_id': v.partnerId,
       'vehicle_brand_id': v.vehicleBrandId,

@@ -12,6 +12,7 @@ import '../../features/vehicle/localdb/vehicle_local_db.dart';
 import '../database/outbox_local_db.dart';
 import '../network/connectivity_service.dart';
 import '../sync/sync_engine.dart';
+import '../utils/image_cache_helper.dart';
 
 final sl = GetIt.instance;
 
@@ -68,6 +69,7 @@ void setupLocator() {
   sl.registerLazySingleton<http.Client>(() => http.Client());
   sl.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
   sl.registerLazySingleton<OutboxLocalDb>(() => OutboxLocalDb());
+  sl.registerLazySingleton<ImageCacheHelper>(() => ImageCacheHelper());
   registerAuthFeature();
   registerVehicleFeature('');
   registerAccidentFeature('');

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/api/app_providers.dart';
 import 'package:samiti_app/core/router/app_router.dart';
+import 'package:samiti_app/core/utils/image_cache_helper.dart';
 import 'package:samiti_app/features/auth/repository/auth_repository.dart';
 import 'package:samiti_app/features/auth/view_model/auth_view_model.dart';
 
@@ -10,10 +11,11 @@ import 'package:samiti_app/features/auth/view_model/auth_view_model.dart';
 import 'core/constants/app_colors.dart';
 import 'core/di/service_locator.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize GetIt
   setupLocator();
+  await sl<ImageCacheHelper>().init();
   runApp(MyApp());
 }
 
@@ -31,7 +33,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _authViewModel = AuthViewModel(repository: sl<AuthRepository>());
+    _authViewModel = sl<AuthViewModel>();
     _router = AppRouter.createRouter(_authViewModel);
   }
 

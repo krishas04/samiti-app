@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:samiti_app/core/database/outbox_local_db.dart';
 import 'package:samiti_app/features/vehicle/api/vehicle_api.dart';
 import 'package:samiti_app/features/vehicle/model/vehicle_model.dart';
@@ -81,6 +82,10 @@ class SyncEngine {
         // Delete temporary local record
         if (tempId != null) {
           await vehicleLocalDb.deleteVehicle(tempId);
+          // delete old image file
+          if (pendingImagePath != null) {
+            await File(pendingImagePath).delete();
+          }
         }
         // Save real server record locally
         await vehicleLocalDb.upsertVehicle(created);

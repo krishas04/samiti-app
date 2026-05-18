@@ -10,6 +10,7 @@ class VehicleModel {
   final VehicleBrandEmbed? vehicleBrand;
   final VehicleTypeEmbed? vehicleType;
   final String? vehicleImage;
+  final String? localImagePath;    // Local file path
 
   // For database queries (foreign key)
   final int? partnerId;
@@ -28,6 +29,7 @@ class VehicleModel {
     this.vehicleBrand,
     this.vehicleType,
     this.vehicleImage,
+    this.localImagePath,
     this.partnerId,
     this.vehicleBrandId,
     this.vehicleTypeId
@@ -52,6 +54,7 @@ class VehicleModel {
           ? VehicleTypeEmbed.fromJson(json['vehicle_type'])
           : null,
       vehicleImage: json['vehicle_image'],
+      localImagePath: json['local_image_path'],
     );
   }
 
@@ -66,6 +69,7 @@ class VehicleModel {
       'created_at':createdAt,
       'model_no': modelNo,
       'vehicle_image': vehicleImage,
+      'local_image_path': localImagePath,
     };
   }
 }

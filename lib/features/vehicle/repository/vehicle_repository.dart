@@ -1,8 +1,6 @@
 //  decides — local or API
 import 'dart:convert';
-import 'dart:io';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:samiti_app/core/utils/image_cache_helper.dart';
 import 'package:uuid/uuid.dart';
 import 'package:samiti_app/core/database/outbox_local_db.dart';
 import 'package:samiti_app/core/api/api_constants.dart';
@@ -39,27 +37,55 @@ class VehicleRepository {
     required Map<String, String> fields,
     String? imagePath,
   }) async {
+    final cacheHelper= ImageCacheHelper();
+
     if (connectivity.isOnline) {
       final vehicle = await api.createVehicle(
         fields: fields,
         imagePath: imagePath,
       );
+      // vehicle includes instance of VehicleModel returned by server which includes remote url in vehicleImage field
+
+      // After upload, download and cache the image
+      if (vehicle.vehicleImage != null) {
+        final localPath = await cacheHelper.downloadAndSaveImage(
+            vehicle.vehicleImage!,
+            vehicle.id
+        );
+        final vehicleWithLocalPath = VehicleModel(
+          id: vehicle.id,
+          displayName: vehicle.displayName,
+          vehicleNo: vehicle.vehicleNo,
+          isActive: vehicle.isActive,
+          fuelType: vehicle.fuelType,
+          modelNo: vehicle.modelNo,
+          vehicleImage: vehicle.vehicleImage,
+          localImagePath: localPath,
+          partner: vehicle.partner,
+          vehicleBrand: vehicle.vehicleBrand,
+          vehicleType: vehicle.vehicleType,
+        );
+        await localDb.upsertVehicle(vehicleWithLocalPath);
+        return vehicleWithLocalPath;
+      }
+      // No image from server
       await localDb.upsertVehicle(vehicle);
       return vehicle;
     } else {
-      final tempId = -DateTime
-          .now()
-          .millisecondsSinceEpoch;
+      // offline
+      //generate negative temp ID
+      final tempId = -DateTime.now().millisecondsSinceEpoch;
 
-      // save imagePath to persistent location
-      final savedImagePath= imagePath != null
-          ? await _saveImageToPermanentStorage(imagePath,tempId)
-          : null;
+      // save image to permanent storage
+      final savedImagePath= await cacheHelper.saveImage(imagePath, tempId);
+
+      // create optimistic record in local db
       await localDb.insertOptimistic(fields, tempId, savedImagePath);
 
       final payload = Map<String, dynamic>.from(fields);
       payload['_local_temp_id'] = tempId;
 
+      // add to outbox queue for later sync
       await outboxDb.enqueue(
         id: const Uuid().v4(),
         operation: 'create',
@@ -94,6 +120,7 @@ class VehicleRepository {
         vehicleBrand: brand,
         vehicleType: type,
         vehicleImage: imagePath,
+        localImagePath: savedImagePath,
       );
       return vehicle;
     }
@@ -193,18 +220,19 @@ class VehicleRepository {
     return cached;
   }
 
-  Future _saveImageToPermanentStorage(String imagePath, int tempId) async {
-    try{
-      final dbPath= await getDatabasesPath();
-      final fileName= 'vehicle_${tempId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final newPath= join(dbPath,fileName);
-
-      final imageFile= File(imagePath);
-      imageFile.copy(newPath);  //copy image file to new permanent location
-      return newPath;
-    }catch(e){
-      print('Failed to save image.');
-      return null;
-    }
-  }
+  // Future _saveImageToPermanentStorage(String imagePath, int tempId) async {
+  //   try{
+  //     final dbPath= await getDatabasesPath();
+  //     final fileName= 'vehicle_${tempId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+  //     final newPath= join(dbPath,fileName);
+  //
+  //     final imageFile= File(imagePath);
+  //     if (!await imageFile.exists()) return null;
+  //     imageFile.copy(newPath);  //copy image file to new permanent location
+  //     return newPath;
+  //   }catch(e){
+  //     print('Failed to save image.');
+  //     return null;
+  //   }
+  // }
 }

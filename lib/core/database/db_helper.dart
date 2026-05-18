@@ -55,6 +55,7 @@ class DbHelper{
         billbook_expire_date TEXT,  
         billbook_image TEXT,  
         vehicle_image TEXT,  
+        local_image_path TEXT,
         manufacture_year INTEGER,
         registration_date TEXT,
         previous_vehicle_no TEXT,
