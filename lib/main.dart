@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:samiti_app/core/api/app_providers.dart';
 import 'package:samiti_app/core/router/app_router.dart';
 import 'package:samiti_app/core/utils/image_cache_helper.dart';
-import 'package:samiti_app/features/auth/repository/auth_repository.dart';
 import 'package:samiti_app/features/auth/view_model/auth_view_model.dart';
 
 
@@ -12,10 +11,10 @@ import 'core/constants/app_colors.dart';
 import 'core/di/service_locator.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();  //Initializes Flutter engine for async operations before runApp
   // Initialize GetIt
   setupLocator();
-  await sl<ImageCacheHelper>().init();
+  await sl<ImageCacheHelper>().init();  //Creates /data/.../vehicle_images/ directory if missing
   runApp(MyApp());
 }
 

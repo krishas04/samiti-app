@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/reusable_widgets/custom_appbar.dart';
 import 'package:samiti_app/core/reusable_widgets/custom_quick_action_tiles.dart';
+import 'package:samiti_app/core/utils/date_formatter.dart';
 import 'package:samiti_app/features/accident/view_model/accident_view_model.dart';
 import 'package:samiti_app/features/vehicle/view_model/vehicle_view_model.dart';
 
@@ -239,7 +240,7 @@ Widget _buildAccidentSection(AccidentViewModel am) {
             subtitle: Text(
               [
                 if (accident.accidentDate != null)
-                  accident.accidentDate!,
+                  formatDate(accident.accidentDate!),
                 if (accident.driverName != null) accident.driverName!,
               ].join(' · '),
             ),

@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:samiti_app/features/vehicle/repository/vehicle_repository.dart';
 import 'package:samiti_app/features/vehicle/view_model/vehicle_view_model.dart';
@@ -32,6 +31,8 @@ class AppProviders extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AccidentViewModel(
             repository: sl<AccidentRepository>(),
+            syncEngine: sl<SyncEngine>(),
+            connectivity: sl<ConnectivityService>(),
           ),
         ),
       ],

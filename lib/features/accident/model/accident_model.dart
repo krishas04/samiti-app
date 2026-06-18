@@ -11,6 +11,11 @@ class AccidentModel {
   final AccidentVehicleEmbed? vehicle;
   final List<AccidentImageModel> images;
 
+
+  final String? syncStatus; // 'synced', 'pending_create', 'pending_update', 'pending_delete'
+  final List<String>? localImagePaths;
+  final int? createdAt;
+
   AccidentModel({
     required this.id,
     required this.displayName,
@@ -23,6 +28,10 @@ class AccidentModel {
     this.remarks,
     this.vehicle,
     this.images = const [],
+
+    this.syncStatus,
+    this.localImagePaths,
+    this.createdAt,
   });
 
   factory AccidentModel.fromJson(Map<String, dynamic> json) {
@@ -42,6 +51,43 @@ class AccidentModel {
       images: (json['images'] as List<dynamic>? ?? [])
           .map((e) => AccidentImageModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      createdAt: DateTime.tryParse(json['created_at'])?.millisecondsSinceEpoch
+      // syncStatus and localImagePaths are local-only, not from server JSON
+    );
+  }
+
+  // Create copy with updated fields (immutable pattern)
+  AccidentModel copyWith({
+    int? id,
+    String? displayName,
+    String? name,
+    bool? isActive,
+    String? accidentDate,
+    String? driverName,
+    String? accidentPlace,
+    String? accidentCause,
+    String? remarks,
+    AccidentVehicleEmbed? vehicle,
+    List<AccidentImageModel>? images,
+    String? syncStatus,
+    List<String>? localImagePaths,
+    int? createdAt
+  }) {
+    return AccidentModel(
+      id: id ?? this.id,
+      displayName: displayName ?? this.displayName,
+      name: name ?? this.name,
+      isActive: isActive ?? this.isActive,
+      accidentDate: accidentDate ?? this.accidentDate,
+      driverName: driverName ?? this.driverName,
+      accidentPlace: accidentPlace ?? this.accidentPlace,
+      accidentCause: accidentCause ?? this.accidentCause,
+      remarks: remarks ?? this.remarks,
+      vehicle: vehicle ?? this.vehicle,
+      images: images ?? this.images,
+      syncStatus: syncStatus ?? this.syncStatus,
+      localImagePaths: localImagePaths ?? this.localImagePaths,
+      createdAt: createdAt ?? this.createdAt
     );
   }
 
@@ -56,6 +102,7 @@ class AccidentVehicleEmbed {
 
   AccidentVehicleEmbed({required this.id, required this.vehicleNo,required this.isActive, });
 
+  // factory can return cached instance instead of creating new one
   factory AccidentVehicleEmbed.fromJson(Map<String, dynamic> json) {
     return AccidentVehicleEmbed(
       id: json['id'],
@@ -63,18 +110,39 @@ class AccidentVehicleEmbed {
       isActive: json['is_active'] ?? true,
     );
   }
+
+  Map<String, dynamic> toJson(){
+    return {
+      'id': id,
+      'vehicle_no': vehicleNo,
+      'is_active': isActive,
+    };
+  }
 }
 
 class AccidentImageModel{
   final int id;
-  final String image;
+  final String image; // can be remote url or localpath
+  final bool isLocal;
 
-  AccidentImageModel({required this.id, required this.image});
+  AccidentImageModel({
+    required this.id,
+    required this.image,
+    this.isLocal= false
+  });
 
   factory AccidentImageModel.fromJson(Map<String, dynamic> json){
     return AccidentImageModel(
         id: json['id'],
         image: json['image'] ?? [],
+        isLocal: false  // server images are never local initially
     );
+  }
+
+  Map<String, dynamic> toJson(){
+    return {
+      'id': id,
+      'image': image
+    };
   }
 }

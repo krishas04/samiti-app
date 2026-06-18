@@ -1,14 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:samiti_app/core/database/outbox_local_db.dart';
+import 'package:samiti_app/features/accident/api/accident_api.dart';
+import 'package:samiti_app/features/accident/localdb/accident_local_db.dart';
 import 'package:samiti_app/features/vehicle/api/vehicle_api.dart';
-import 'package:samiti_app/features/vehicle/model/vehicle_model.dart';
 
 import '../../features/vehicle/localdb/vehicle_local_db.dart';
+import '../utils/image_cache_helper.dart';
 
 class SyncEngine {
   final VehicleApi vehicleApi;
   final VehicleLocalDb vehicleLocalDb;
+  final AccidentApi? accidentApi;
+  final AccidentLocalDb? accidentLocalDb;
   final OutboxLocalDb outboxDb;
 
   bool _running = false;
@@ -16,6 +20,8 @@ class SyncEngine {
   SyncEngine({
     required this.vehicleApi,
     required this.vehicleLocalDb,
+    this.accidentApi,
+    this.accidentLocalDb,
     required this.outboxDb,
   });
 
@@ -59,6 +65,9 @@ class SyncEngine {
 
     if (resource == 'vehicle') {
       await _executeVehicleOp(operation, payload, endpoint, pendingImagePath);
+    }
+    else if (resource == 'accident') {
+      await _executeAccidentOp(operation, payload, endpoint, pendingImagePath);
     }
     // Add accident, etc. here as you build them
   }
@@ -111,6 +120,7 @@ class SyncEngine {
   // PULL: fetch fresh data from server → save to local DB
   Future<void> _pullAll() async {
     await _pullVehicles();
+    await _pullAccidents();
     // Add _pullAccidents() here later
   }
 
@@ -121,6 +131,84 @@ class SyncEngine {
       await vehicleLocalDb.upsertVehicles(vehicles);
     } catch (e) {
       print('Pull vehicles error: $e');
+    }
+  }
+
+  Future<void> _executeAccidentOp(
+      String operation,
+      Map<String, dynamic> payload,
+      String endpoint,
+      String? pendingImagePath,
+      ) async {
+    if (accidentApi == null || accidentLocalDb == null) return;
+
+    switch (operation) {
+      case 'create':
+        final tempId = payload['_local_temp_id'] as int?;
+        final imagePaths = (payload['_image_paths'] as List<dynamic>?)?.cast<String>() ?? [];
+        if (pendingImagePath != null && !imagePaths.contains(pendingImagePath)) {
+          imagePaths.insert(0, pendingImagePath);
+        }
+
+        // Remove internal fields
+        final fields = Map<String, String>.from(payload
+          ..remove('_local_temp_id')
+          ..remove('_image_paths')
+          ..remove('_image_count'))
+            .map((k, v) => MapEntry(k, v.toString()));
+
+        final created = await accidentApi!.createAccident(
+          fields: fields,
+          imagePaths: imagePaths,
+        );
+
+        // Cache server images permanently
+        final cacheHelper = ImageCacheHelper();
+        final localPaths = <String>[];
+        for (final img in created.images) {
+          if (img.image.startsWith('http')) {
+            final localPath = await cacheHelper.downloadAndSaveImage(
+              img.image,
+              created.id,
+            );
+            if (localPath != null) localPaths.add(localPath);
+          }
+        }
+
+        // Delete temp record, save real record
+        if (tempId != null) {
+          await accidentLocalDb!.deleteAccident(tempId);
+        }
+
+        final createdWithCache = created.copyWith(
+          localImagePaths: localPaths,
+        );
+        await accidentLocalDb!.upsertAccident(createdWithCache);
+        break;
+
+      case 'update':
+        final parts = endpoint.split('/');
+        final id = int.parse(parts[parts.length - 2]);
+        final updated = await accidentApi!.updateAccident(id: id, body: payload);
+        await accidentLocalDb!.upsertAccident(updated);
+        break;
+
+      case 'delete':
+        final parts = endpoint.split('/');
+        final id = int.parse(parts[parts.length - 2]);
+        await accidentApi!.deleteAccident(id:id);
+        await accidentLocalDb!.deleteAccident(id);
+        break;
+    }
+  }
+
+  Future<void> _pullAccidents() async {
+    if (accidentApi == null || accidentLocalDb == null) return;
+    try {
+      final accidents = await accidentApi!.getAccidents();
+      await accidentLocalDb!.upsertAccidents(accidents);
+    } catch (e) {
+      print('Pull accidents error: $e');
     }
   }
 }
