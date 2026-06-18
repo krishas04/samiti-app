@@ -21,8 +21,9 @@ class DbHelper{
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
     
   }
@@ -85,7 +86,8 @@ class DbHelper{
         vehicle_json TEXT,
         images_json TEXT,
         sync_status TEXT NOT NULL DEFAULT 'synced',
-        synced_at TEXT
+        synced_at TEXT,
+        created_at INTEGER
       )
     ''');
 
@@ -134,7 +136,40 @@ class DbHelper{
       )
     ''');
 
+    // accident_images table
+    batch.execute('''
+      CREATE TABLE accident_images (
+        id INTEGER PRIMARY KEY,
+        accident_id INTEGER NOT NULL,
+        image_url TEXT,           -- Server URL after sync
+        local_path TEXT,          -- Permanent local path
+        is_local INTEGER NOT NULL DEFAULT 1,  -- 1=local file, 0=server URL
+        sync_status TEXT NOT NULL DEFAULT 'synced',  -- 'pending_create', 'synced'
+        created_at INTEGER,
+        FOREIGN KEY (accident_id) REFERENCES accidents(id) ON DELETE CASCADE
+      )
+    ''');
+
     await batch.commit(noResult: true);
 
+  }
+
+  FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async{
+    if(oldVersion < 2){
+      // Migration: Add accident_images table if upgrading from v1
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS accident_images (
+          id INTEGER PRIMARY KEY ,
+          accident_id INTEGER NOT NULL,
+          image_url TEXT,
+          local_path TEXT,
+          is_local INTEGER NOT NULL DEFAULT 1,
+          sync_status TEXT NOT NULL DEFAULT 'synced',
+          created_at INTEGER,
+          FOREIGN KEY (accident_id) REFERENCES accidents(id) ON DELETE CASCADE
+        )
+      '''
+      );
+    }
   }
 }

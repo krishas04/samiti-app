@@ -7,6 +7,8 @@ import 'package:samiti_app/features/auth/view_model/auth_view_model.dart';
 import 'package:samiti_app/features/vehicle/repository/vehicle_repository.dart';
 import 'package:samiti_app/features/vehicle/view_model/vehicle_view_model.dart';
 
+import '../../features/accident/api/accident_api.dart';
+import '../../features/accident/localdb/accident_local_db.dart';
 import '../../features/vehicle/api/vehicle_api.dart';
 import '../../features/vehicle/localdb/vehicle_local_db.dart';
 import '../database/outbox_local_db.dart';
@@ -25,18 +27,12 @@ void registerAuthFeature() {
   );
 }
 
-void registerVehicleFeature(String? token) {
+void registerVehicleFeature() {
   sl.registerLazySingleton<VehicleLocalDb>(() => VehicleLocalDb());
   sl.registerLazySingleton<VehicleApi>(
         () => VehicleApi(client: sl<http.Client>()),
   );
-  sl.registerLazySingleton<SyncEngine>(
-        () => SyncEngine(
-      vehicleApi: sl<VehicleApi>(),
-      vehicleLocalDb: sl<VehicleLocalDb>(),
-      outboxDb: sl<OutboxLocalDb>(),
-    ),
-  );
+
   sl.registerLazySingleton<VehicleRepository>(
         () => VehicleRepository(
       api: sl<VehicleApi>(),
@@ -54,26 +50,55 @@ void registerVehicleFeature(String? token) {
   );
 }
 
-void registerAccidentFeature(String? token) {
-  // Use registerFactory so a fresh token is always used
-  sl.registerFactory<AccidentRepository>(
-        () => AccidentRepository(client: sl<http.Client>()),
+void registerAccidentFeature() {
+  sl.registerLazySingleton<AccidentLocalDb>(
+          () => AccidentLocalDb()
+  );
+  sl.registerLazySingleton<AccidentApi>(
+        () => AccidentApi(client: sl<http.Client>()),
+  );
+  sl.registerLazySingleton<AccidentRepository>(
+        () => AccidentRepository(
+          api:sl<AccidentApi>(),
+          localDb: sl<AccidentLocalDb>(),
+          outboxDb: sl<OutboxLocalDb>(),
+          connectivity: sl<ConnectivityService>()
+        ),
   );
   sl.registerFactory<AccidentViewModel>(
-        () => AccidentViewModel(repository: sl<AccidentRepository>(), ),
+        () => AccidentViewModel(
+          repository: sl<AccidentRepository>(),
+          syncEngine: sl<SyncEngine>(),
+          connectivity: sl<ConnectivityService>()
+        ),
   );
 }
 
 
 void setupLocator() {
+  // // Core infrastructure (singletons - live forever)
   sl.registerLazySingleton<http.Client>(() => http.Client());
   sl.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
   sl.registerLazySingleton<OutboxLocalDb>(() => OutboxLocalDb());
   sl.registerLazySingleton<ImageCacheHelper>(() => ImageCacheHelper());
+
+  // Auth feature
   registerAuthFeature();
-  registerVehicleFeature('');
-  registerAccidentFeature('');
-  // Vehicle and Accident are registered after login (token required).
-  // Call registerVehicleFeature(token) and registerAccidentFeature(token)
-  // from AuthViewModel after a successful login.
+
+  // Vehicle feature
+  registerVehicleFeature();
+
+  // Accident feature
+  registerAccidentFeature();
+
+  // Register SyncEngine
+  sl.registerLazySingleton<SyncEngine>(
+        () => SyncEngine(
+      vehicleApi: sl<VehicleApi>(),
+      vehicleLocalDb: sl<VehicleLocalDb>(),
+      accidentApi: sl<AccidentApi>(),
+      accidentLocalDb: sl<AccidentLocalDb>(),
+      outboxDb: sl<OutboxLocalDb>(),
+    ),
+  );
 }

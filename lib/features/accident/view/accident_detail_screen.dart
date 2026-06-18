@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samiti_app/core/reusable_widgets/custom_appbar.dart';
 
+import '../../../core/utils/date_formatter.dart';
 import '../view_model/accident_view_model.dart';
 
 class AccidentDetailScreen extends StatefulWidget {
@@ -38,6 +39,7 @@ class _AccidentDetailScreenState extends State<AccidentDetailScreen> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AccidentViewModel>();
@@ -69,7 +71,7 @@ class _AccidentDetailScreenState extends State<AccidentDetailScreen> {
                       _infoRow('Name', accident.name),
                       const Divider(),
                       _infoRow('Vehicle', accident.vehicle?.vehicleNo),
-                      _infoRow('Date', accident.accidentDate),
+                      _infoRow('Date', formatDate(accident.accidentDate)),
                       _infoRow('Driver', accident.driverName),
                       _infoRow('Place', accident.accidentPlace),
                       _infoRow('Cause', accident.accidentCause),
